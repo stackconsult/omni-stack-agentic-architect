@@ -7,6 +7,7 @@ Guidelines for building production-grade systems.
 ## Code Quality
 
 ### Always Include
+
 - ✅ Input validation (Pydantic, TypeScript interfaces)
 - ✅ Error handling (try/catch, custom exceptions)
 - ✅ Type hints/annotations
@@ -14,6 +15,7 @@ Guidelines for building production-grade systems.
 - ✅ Tests (unit + integration)
 
 ### Never Do
+
 - ❌ Hard-code secrets
 - ❌ Skip error handling
 - ❌ Ignore type safety
@@ -25,6 +27,7 @@ Guidelines for building production-grade systems.
 ## Error Handling
 
 ### Exception Hierarchy
+
 ```python
 class AppException(Exception):
     """Base for all app exceptions"""
@@ -50,6 +53,7 @@ except ExternalServiceError as e:
 ```
 
 ### Retry Logic
+
 ```python
 # Always use retry for transient failures
 @retry_with_backoff(
@@ -65,6 +69,7 @@ async def call_api():
 ```
 
 ### Timeouts
+
 ```python
 # Always set timeouts
 async with httpx.AsyncClient(timeout=30.0) as client:
@@ -79,6 +84,7 @@ result = await asyncio.wait_for(operation(), timeout=60.0)
 ## Security
 
 ### Secrets Management
+
 ```python
 # ✅ Good: Use secret manager
 config = SecretConfig(provider="aws")
@@ -92,6 +98,7 @@ api_key = os.getenv("API_KEY")  # Development only!
 ```
 
 ### Input Validation
+
 ```python
 # ✅ Good: Validate everything
 class CreateUser(BaseModel):
@@ -106,6 +113,7 @@ def create_user(email, password, age):
 ```
 
 ### Authentication
+
 ```python
 # ✅ Good: JWT with refresh tokens
 access_token = create_token(user_id, expires=30*60)  # 30 min
@@ -120,6 +128,7 @@ token = create_token(user_id, expires=365*24*3600)  # 1 year!
 ## Database
 
 ### Migrations
+
 ```python
 # ✅ Good: Use migration tool
 alembic revision --autogenerate -m "Add user table"
@@ -130,6 +139,7 @@ alembic upgrade head
 ```
 
 ### Indexes
+
 ```sql
 -- ✅ Good: Index frequently queried columns
 CREATE INDEX idx_users_email ON users(email);
@@ -142,6 +152,7 @@ CREATE INDEX idx_config ON table USING GIN(config);
 ```
 
 ### Queries
+
 ```python
 # ✅ Good: Use ORM with proper joins
 users = await session.execute(
@@ -162,6 +173,7 @@ for user in users:
 ## Logging
 
 ### Structured Logging
+
 ```python
 # ✅ Good: Structured with context
 logger.info(
@@ -177,7 +189,8 @@ logger.info(f"User {user.id} created")  # Can't query/filter
 ```
 
 ### Log Levels
-```
+
+```text
 DEBUG: Detailed diagnostic info (dev only)
 INFO: General informational messages
 WARNING: Warning messages (degraded but working)
@@ -186,6 +199,7 @@ CRITICAL: Critical errors (system failing)
 ```
 
 ### What to Log
+
 ```python
 # ✅ Always log
 - Operation start/complete with duration
@@ -205,7 +219,8 @@ CRITICAL: Critical errors (system failing)
 ## Testing
 
 ### Test Pyramid
-```
+
+```text
       E2E (few)
     /           \
    Integration (some)
@@ -214,6 +229,7 @@ CRITICAL: Critical errors (system failing)
 ```
 
 ### Unit Tests
+
 ```python
 # ✅ Good: Test one thing
 def test_user_validation():
@@ -230,6 +246,7 @@ def test_user_name(user):
 ```
 
 ### Integration Tests
+
 ```python
 # ✅ Good: Test with real DB
 @pytest.mark.integration
@@ -239,6 +256,7 @@ async def test_create_user(test_db):
 ```
 
 ### Mocking
+
 ```python
 # ✅ Good: Mock external services
 @pytest.fixture
@@ -257,6 +275,7 @@ async def test_with_mock(mock_llm):
 ## Performance
 
 ### Async Operations
+
 ```python
 # ✅ Good: Concurrent operations
 results = await asyncio.gather(
@@ -273,6 +292,7 @@ for i in [1, 2, 3]:
 ```
 
 ### Caching
+
 ```python
 # ✅ Good: Cache expensive operations
 @lru_cache(maxsize=1000)
@@ -287,7 +307,8 @@ if not cached:
     await redis.setex(cache_key, 300, json.dumps(data))
 ```
 
-### Database
+### Database Performance
+
 ```python
 # ✅ Good: Connection pooling
 engine = create_async_engine(
@@ -308,6 +329,7 @@ SELECT * FROM users;  # Could be millions!
 ## Deployment
 
 ### Environment Config
+
 ```python
 # ✅ Good: Environment-based config
 class Settings(BaseSettings):
@@ -324,6 +346,7 @@ DATABASE_URL = "postgresql://localhost/db"
 ```
 
 ### Health Checks
+
 ```python
 # ✅ Good: Implement health endpoint
 @app.get("/health")
@@ -336,6 +359,7 @@ async def health_check():
 ```
 
 ### Graceful Shutdown
+
 ```python
 # ✅ Good: Handle signals
 import signal
@@ -354,7 +378,8 @@ signal.signal(signal.SIGINT, signal_handler)
 ## Monitoring
 
 ### Metrics to Track
-```
+
+```text
 - Request rate (requests/second)
 - Error rate (errors/total)
 - Response time (P50, P95, P99)
@@ -364,7 +389,8 @@ signal.signal(signal.SIGINT, signal_handler)
 ```
 
 ### Alerts to Set
-```
+
+```text
 CRITICAL: Error rate > 5%
 CRITICAL: P95 latency > 1000ms
 WARNING: Error rate > 1%
@@ -373,7 +399,8 @@ INFO: Deployment completed
 ```
 
 ### Dashboards
-```
+
+```text
 Operations Dashboard:
 - Request rate over time
 - Error rate over time
@@ -392,16 +419,19 @@ Business Dashboard:
 ## Cost Optimization
 
 ### Before Building
+
 - Estimate costs for expected load
 - Set budget alerts
 - Choose appropriate instance sizes
 
 ### During Development
+
 - Use free tiers for dev/staging
 - Scale to zero when not in use
 - Mock expensive services in tests
 
 ### In Production
+
 - Monitor actual costs daily
 - Optimize expensive queries
 - Cache aggressively
@@ -413,6 +443,7 @@ Business Dashboard:
 ## Documentation
 
 ### Code Documentation
+
 ```python
 # ✅ Good: Clear docstrings
 async def create_user(email: str, password: str) -> User:
@@ -434,6 +465,7 @@ async def create_user(email: str, password: str) -> User:
 ```
 
 ### README Template
+
 ```markdown
 # Project Name
 
